@@ -31,3 +31,17 @@ class AuctionListView(APIView):
 
         return JsonResponse(serializer.data, safe=False)
         
+class AuctionDetailView(APIView):
+    def get(self, request, pk):
+        try:
+            auction = Auction.objects.get(pk = pk)
+
+        except Auction.DoesNotExist:
+            return JsonResponse({"error":"Auction not found"}, status = 404)
+        
+        serializer = AuctionSerializer(auction)
+
+        return  JsonResponse(serializer.data, status =  200)
+    
+        
+        
