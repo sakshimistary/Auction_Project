@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from auctions.serializers import AuctionSerializer, BidSerializer 
 from rest_framework.permissions import IsAuthenticated 
 from auctions.models import Auction, Bid
+from django.utils import timezone
 # Create your views here.
 
 class CreateAuctionView(APIView):
@@ -70,3 +71,28 @@ class AuctionBidsView(APIView):
         serializer = BidSerializer(bids, many=True)
 
         return JsonResponse(serializer.data, safe=False, status=200)
+    
+def declare_winner(auction_id):
+    try:
+        auction = Auction.objects.get(id=auction_id)
+    except Auction.DoesNotExist:
+        return "Auction not found"
+    
+    if auction.end_time > timezone.now():
+        return "Auction still ongoing"
+
+    else:
+        highest_bid = Bid.objects.filter(auction=auction).order_by('-amount').first()
+
+        if highest_bid:
+            auction.winner = highest_bid.user
+            auction.is_active = False
+            auction.save()
+            return "Winner declared successfully"
+ 
+        return "No bids placed"  
+
+class DeclareWinnerView(APIView):
+    def post(self, request, auction_id):
+        result = declare_winner(auction_id)
+        return JsonResponse({"message": result})      
