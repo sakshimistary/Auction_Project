@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from auctions.serializers import AuctionSerializer, BidSerializer 
 from rest_framework.permissions import IsAuthenticated 
-from auctions.models import Auction
+from auctions.models import Auction, Bid
 # Create your views here.
 
 class CreateAuctionView(APIView):
@@ -42,6 +42,31 @@ class AuctionDetailView(APIView):
         serializer = AuctionSerializer(auction)
 
         return  JsonResponse(serializer.data, status =  200)
-    
+
+
+class PlaceBidView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = BidSerializer(data=request.data, context={'request': request})
+
+        if serializer.is_valid():
+            bid = serializer.save(user=request.user)
+
+            auction = bid.auction
+            auction.current_price = bid.amount
+            auction.save()
+
+            return JsonResponse({
+                "message": "Bid placed successfully",
+                "data": serializer.data
+            }, status=201)
+
+        return JsonResponse(serializer.errors, status=400)        
         
-        
+class AuctionBidsView(APIView):
+    def get(self, request, auction_id):
+        bids = Bid.objects.filter(auction_id=auction_id).order_by('-amount')
+        serializer = BidSerializer(bids, many=True)
+
+        return JsonResponse(serializer.data, safe=False, status=200)
