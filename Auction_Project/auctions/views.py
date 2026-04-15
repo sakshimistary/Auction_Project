@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from auctions.serializers import AuctionSerializer, BidSerializer 
 from rest_framework.permissions import IsAuthenticated 
+from auctions.models import Auction
 # Create your views here.
 
 class CreateAuctionView(APIView):
@@ -17,4 +18,16 @@ class CreateAuctionView(APIView):
 
         return JsonResponse(serializer.errors, status=400)
     
+class AuctionListView(APIView):
+    def get(self, request):
+        is_active = request.data.GET.get('is_active')
 
+        auctions = Auction.objects.all()
+
+        if is_active is not None:
+            auctions = auctions.filter(is_active = is_active)
+
+        serializer = AuctionSerializer(auctions, many = True)
+
+        return JsonResponse(serializer.data, safe=False)
+        
