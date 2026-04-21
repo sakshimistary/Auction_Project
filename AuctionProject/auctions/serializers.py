@@ -8,7 +8,7 @@ class AuctionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
         fields = "__all__"
-        read_only_fields = ['current_price', 'is_active', 'created_at']
+        read_only_fields = [ 'is_active', 'created_at']
 
     def validate_end_time(self, value):
         if value <= timezone.now():
