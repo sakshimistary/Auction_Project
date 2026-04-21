@@ -68,8 +68,7 @@ def declare_winner(auction_id):
     try:
         auction = Auction.objects.get(id=auction_id)
     except Auction.DoesNotExist:
-        return "Auction not found"
-    
+        return "Auction not found"    
     if auction.end_time > timezone.now():
         return "Auction still ongoing"
 
@@ -85,6 +84,7 @@ def declare_winner(auction_id):
         return "No bids placed"          
     
 class WinnerViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
     def retrieve(self, request, pk):
         winner = declare_winner(auction_id = pk)
         
