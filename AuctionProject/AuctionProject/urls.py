@@ -23,6 +23,8 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 
 router = SimpleRouter()
 router.register('Auction', views.AuctionView, basename= 'auction')
+router.register('Bid',views.PLaceBidViewSet, basename= 'Bid' )
+router.register('Winner', views.WinnerViewSet,basename='winner')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/token-auth', obtain_auth_token, name = 'api_token_auth'),
