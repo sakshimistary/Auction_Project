@@ -12,7 +12,7 @@ class AuctionView(viewsets.ViewSet):
 
         serializer = AuctionSerializer(auctions, many = True)
 
-        print(timezone.now())
+        
         return Response(serializer.data)
         
     def create(self, request):
